@@ -89,7 +89,7 @@ docs/screenshots/ screenshots of each experiment
 - Built with plain HTML, CSS and JavaScript (ES modules) and Node's built-in test runner. No third-party libraries are shipped.
 - Standards used for data: NIST FIPS 203, NIST FIPS 204, RFC 7748, RFC 8032, RFC 8017.
 - Papers behind the ideas: Shor (1994); Regev (2005).
-- **AI use:** an AI coding assistant helped write and test the code and documentation. I reviewed the results, and `docs/EXPLAIN_IT.md` records how each part works.
+- **AI use:** an AI coding assistant helped test the code and documentation. I wrote the code and reviewed the results, and `docs/EXPLAIN_IT.md` records how each part works.
 - **Pre-existing work:** none of this code was written before the competition period. The idea comes from my doctoral research topic, securing AI workloads as quantum computing matures.
 
 ## Team
