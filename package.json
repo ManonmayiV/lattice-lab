@@ -1,0 +1,11 @@
+{
+  "name": "lattice-lab",
+  "version": "1.0.0",
+  "description": "Interactive STEM lab: why quantum computers break RSA and why lattice-based cryptography is built to resist them.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/lwe.test.mjs tests/shor.test.mjs tests/sizes.test.mjs",
+    "serve": "python3 -m http.server 8080"
+  }
+}

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lattice Lab: why quantum computers break RSA, and why lattices resist them</title>
+  <meta name="description" content="Three hands-on experiments that teach post-quantum cryptography: Shor's algorithm on small numbers, toy lattice encryption with adjustable noise, and the byte cost of the new standards.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to main content</a>
+
+  <header class="site">
+    <h1>Lattice Lab</h1>
+    <p class="tagline">Why a quantum computer breaks RSA, why lattice-based encryption is built to resist it, and what the switch costs. Three experiments, all running in your browser.</p>
+    <nav aria-label="Sections">
+      <ul>
+        <li><a href="#shor">1. Break a lock</a></li>
+        <li><a href="#lwe">2. Hide a secret in noise</a></li>
+        <li><a href="#sizes">3. Count the bytes</a></li>
+        <li><a href="#quiz">4. Check yourself</a></li>
+        <li><a href="#about">About and limits</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section id="intro" aria-labelledby="intro-h">
+      <h2 id="intro-h">The problem in two paragraphs</h2>
+      <p>Most of the encryption protecting web traffic, software updates and stored records today rests on two hard problems: factoring large numbers (RSA) and finding discrete logarithms (Diffie-Hellman and elliptic curves). In 1994 Peter Shor showed that a large enough quantum computer solves both in polynomial time.</p>
+      <p>That matters before such a machine exists. An attacker can record encrypted traffic now and decrypt it later ("harvest now, decrypt later"). In August 2024 NIST published the first post-quantum standards, FIPS 203 (ML-KEM) and FIPS 204 (ML-DSA), built on lattice problems. Most people who will have to migrate have never seen either idea run. This lab lets them.</p>
+      <p class="note"><strong>Every demo here is a toy.</strong> It teaches the mechanism with small numbers so you can watch it work. Nothing in this page protects real data.</p>
+    </section>
+
+    <section id="shor" aria-labelledby="shor-h">
+      <h2 id="shor-h">Experiment 1. Break a lock the way Shor's algorithm does</h2>
+      <p class="plain"><strong>In plain words:</strong> a lock built from a big number N = p × q is safe only if nobody can find p and q. Shor's trick turns factoring into finding how often the pattern of powers a<sup>x</sup> mod N repeats. A quantum computer finds that repeat length fast. Here a normal computer finds it by brute force, which works for tiny N and fails for real ones.</p>
+
+      <form id="shor-form" class="controls" aria-label="Factor a small number">
+        <label>Number to factor, N
+          <select id="shor-n"></select>
+        </label>
+        <label>Base a (2 up to N-1)
+          <input id="shor-a" type="number" min="2" value="2" inputmode="numeric">
+        </label>
+        <button type="submit">Run one trial</button>
+        <button type="button" id="shor-auto">Try bases until it works</button>
+      </form>
+      <div id="shor-out" class="result" aria-live="polite"></div>
+
+      <h3>Why brute force cannot scale</h3>
+      <p>The button below times the same brute-force period search on small semiprimes (products of two primes) and records how many steps each needed.</p>
+      <button type="button" id="scale-run">Measure the growth</button>
+      <div id="scale-out" class="result" aria-live="polite"></div>
+    </section>
+
+    <section id="lwe" aria-labelledby="lwe-h">
+      <h2 id="lwe-h">Experiment 2. Hide a secret in noise</h2>
+      <p class="plain"><strong>In plain words:</strong> imagine a system of linear equations with a secret solution. Solving it is easy algebra. Now nudge every right-hand side by a small random error. Anyone holding the secret can still decrypt, because the errors stay small. Anyone solving the equations gets a wrong answer. That gap is Learning With Errors (LWE), the problem under ML-KEM. Move the sliders and watch where it breaks.</p>
+
+      <form id="lwe-form" class="controls" aria-label="Lattice encryption settings" onsubmit="return false">
+        <label>Random seed
+          <input id="lwe-seed" type="number" value="2026" min="0" max="999999" inputmode="numeric">
+        </label>
+        <label>Dimension n <output id="lwe-n-out" for="lwe-n">16</output>
+          <input id="lwe-n" type="range" min="4" max="32" step="4" value="16">
+        </label>
+        <label>Samples m <output id="lwe-m-out" for="lwe-m">64</output>
+          <input id="lwe-m" type="range" min="16" max="128" step="8" value="64">
+        </label>
+        <label>Noise size B (each error is between -B and +B) <output id="lwe-b-out" for="lwe-b">2</output>
+          <input id="lwe-b" type="range" min="0" max="400" step="1" value="2">
+        </label>
+      </form>
+      <p id="lwe-live" class="live" aria-live="polite"></p>
+
+      <h3>A. Encrypt a message, bit by bit</h3>
+      <form id="lwe-send-form" class="controls" aria-label="Encrypt a short message">
+        <label>Message (up to 8 characters)
+          <input id="lwe-msg" type="text" maxlength="8" value="Hi!" autocomplete="off">
+        </label>
+        <button type="submit">Encrypt and decrypt</button>
+      </form>
+      <div id="lwe-send-out" class="result" aria-live="polite"></div>
+
+      <h3>B. Run 2,000 encryptions and see the noise</h3>
+      <button type="button" id="lwe-sim">Run 2,000 trials</button>
+      <div id="lwe-sim-out" class="result" aria-live="polite"></div>
+
+      <h3>C. Attack it with plain algebra</h3>
+      <button type="button" id="lwe-attack">Solve the equations</button>
+      <div id="lwe-attack-out" class="result" aria-live="polite"></div>
+    </section>
+
+    <section id="sizes" aria-labelledby="sizes-h">
+      <h2 id="sizes-h">Experiment 3. Count the bytes</h2>
+      <p class="plain"><strong>In plain words:</strong> the new algorithms are not free. A lattice key is a long list of numbers, not a single curve point. These sizes come straight from the published standards, and the "exchange total" is one public key plus one ciphertext (or one signature).</p>
+      <h3>Key exchange</h3>
+      <div id="kem-chart"></div>
+      <div id="kem-table" class="table-wrap"></div>
+      <h3>Signatures</h3>
+      <div id="sig-chart"></div>
+      <div id="sig-table" class="table-wrap"></div>
+    </section>
+
+    <section id="quiz" aria-labelledby="quiz-h">
+      <h2 id="quiz-h">Check yourself</h2>
+      <form id="quiz-form"></form>
+      <div id="quiz-out" class="result" aria-live="polite"></div>
+    </section>
+
+    <section id="about" aria-labelledby="about-h">
+      <h2 id="about-h">About, limits and sources</h2>
+      <ul>
+        <li><strong>Toy parameters.</strong> The LWE scheme here uses n up to 32 and q = 3329. Real ML-KEM uses structured module lattices at a much larger scale, and small LWE instances can be broken with lattice reduction. The point of experiment 2 is the role of noise, not a security claim.</li>
+        <li><strong>Brute force is not the best classical attack.</strong> Real RSA is attacked with the number field sieve, which is far faster than brute-force period finding. Experiment 1 shows why the quantum period-finding step matters, not the cheapest classical route.</li>
+        <li><strong>No quantum simulation.</strong> The period is found classically. The page never claims a quantum speedup it did not run.</li>
+        <li><strong>Sources.</strong> NIST FIPS 203 and FIPS 204 (August 2024); RFC 7748; RFC 8032; RFC 8017; Shor, "Algorithms for quantum computation: discrete logarithms and factoring" (1994); Regev, "On lattices, learning with errors, random linear codes, and cryptography" (2005).</li>
+        <li><strong>Accessibility.</strong> Keyboard operable, every chart has a text table, results are announced to screen readers, and charts never use colour alone.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site"><p>Lattice Lab, built for the STEM Innovation Challenge 2026. Source and documentation are in the project repository.</p></footer>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
